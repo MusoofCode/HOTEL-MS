@@ -58,6 +58,14 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
       },
+      boxShadow: {
+        elev: "var(--shadow-elev)",
+        soft: "var(--shadow-soft)",
+      },
+      backgroundImage: {
+        "brand-glow":
+          "radial-gradient(900px circle at 10% 10%, hsl(var(--primary) / 0.22), transparent 55%), radial-gradient(900px circle at 90% 20%, hsl(var(--primary) / 0.14), transparent 60%)",
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
