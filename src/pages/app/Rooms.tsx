@@ -20,6 +20,12 @@ const roomTypeSchema = z.object({
   max_occupancy: z.coerce.number().int().min(1),
 });
 
+type RoomTypeValues = {
+  name: string;
+  base_rate: number;
+  max_occupancy: number;
+};
+
 const roomSchema = z.object({
   room_number: z.string().trim().min(1),
   room_type_id: z.string().uuid(),
@@ -62,8 +68,15 @@ export default function Rooms() {
   });
 
   const createType = useMutation({
-    mutationFn: async (values: z.infer<typeof roomTypeSchema>) => {
-      const { error } = await supabase.from("room_types").insert([values]);
+    mutationFn: async (values: RoomTypeValues) => {
+      // Build a strict payload so the generated Insert type requirements are satisfied.
+      const payload = {
+        name: values.name,
+        base_rate: Number(values.base_rate),
+        max_occupancy: Number(values.max_occupancy),
+      };
+
+      const { error } = await supabase.from("room_types").insert([payload]);
       if (error) throw error;
     },
     onSuccess: async () => {
@@ -110,7 +123,10 @@ export default function Rooms() {
                   <DialogTitle>Create room type</DialogTitle>
                 </DialogHeader>
                 <Form {...typeForm}>
-                  <form className="grid gap-4" onSubmit={typeForm.handleSubmit((v) => createType.mutate(v))}>
+                  <form
+                    className="grid gap-4"
+                    onSubmit={typeForm.handleSubmit((v) => createType.mutate(v as unknown as RoomTypeValues))}
+                  >
                     <FormField control={typeForm.control} name="name" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Name</FormLabel>
