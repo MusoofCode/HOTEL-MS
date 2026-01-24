@@ -37,23 +37,23 @@ export function AppLayout() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-svh w-full bg-background bg-brand-glow">
-        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-background/70 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/50">
+      <div className="min-h-svh w-full bg-background">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/70 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/50">
           <div className="flex items-center gap-2">
             <SidebarTrigger className="ml-1" />
             <div className="flex items-center gap-2">
-              <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg border bg-card shadow-soft">
+              <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border bg-card shadow-soft">
                 <ShieldCheck className="h-4 w-4" />
               </div>
               <div className="leading-tight">
                 <div className="text-sm font-semibold">Hotel Admin</div>
-                <div className="text-xs text-muted-foreground">Command Center</div>
+                <div className="text-xs text-muted-foreground">Operations overview</div>
               </div>
             </div>
           </div>
 
           <Button
-            variant="subtle"
+            variant="outline"
             size="sm"
             onClick={async () => {
               await supabase.auth.signOut();

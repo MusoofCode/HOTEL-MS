@@ -100,7 +100,7 @@ export default function Dashboard() {
 
   return (
     <div>
-      <PageHeader title="Dashboard" subtitle="Real-time financial and occupancy command center." />
+      <PageHeader title="Dashboard" subtitle="Statistical summary and live operations." />
 
       {error ? (
         <Card className="shadow-soft">
@@ -108,68 +108,85 @@ export default function Dashboard() {
         </Card>
       ) : null}
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Income (Today)" value={isLoading ? "—" : `$${data?.incomeToday.toFixed(2)}`} hint="Cashflow today" />
-        <StatCard label="Income (Month)" value={isLoading ? "—" : `$${data?.incomeMonth.toFixed(2)}`} hint="Paid in full" />
-        <StatCard label="Expenses (Month)" value={isLoading ? "—" : `$${data?.expensesMonth.toFixed(2)}`} hint="Operational spend" />
-        <StatCard
-          label="Net Profit (Month)"
-          value={isLoading ? "—" : `$${data?.profitMonth.toFixed(2)}`}
-          hint="Income − expenses"
-        />
-      </div>
+      <div className="grid gap-4 lg:grid-cols-12">
+        {/* Main */}
+        <section className="lg:col-span-9">
+          <div className="mb-3 text-sm font-semibold text-muted-foreground">Statistical Summary</div>
+          <div className="grid gap-4 md:grid-cols-3">
+            <StatCard label="Income (Today)" value={isLoading ? "—" : `$${data?.incomeToday.toFixed(2)}`} hint="Cashflow today" />
+            <StatCard label="Income (Month)" value={isLoading ? "—" : `$${data?.incomeMonth.toFixed(2)}`} hint="Paid in full" />
+            <StatCard label="Room Capacity" value={isLoading ? "—" : `${data?.available} available`} hint={isLoading ? "" : `${data?.occ} occupied • ${data?.rooms} total`} />
+          </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
-        <StatCard
-          className="lg:col-span-1"
-          label="Occupancy (Today)"
-          value={isLoading ? "—" : `${data?.occ}/${data?.rooms}`}
-          hint={isLoading ? "" : `${data?.available} available`}
-        />
-
-        <Card className="shadow-soft lg:col-span-1">
-          <CardContent className="p-6">
-            <div className="text-sm font-semibold">Upcoming check-outs (7 days)</div>
-            <div className="mt-3 grid gap-2 text-sm">
-              {(data?.checkouts?.length ?? 0) === 0 ? (
-                <div className="text-muted-foreground">No upcoming check-outs.</div>
-              ) : (
-                data?.checkouts.map((c: any) => (
-                  <div key={c.id} className="flex items-center justify-between gap-3 rounded-lg border bg-card px-3 py-2">
-                    <div className="min-w-0">
-                      <div className="font-medium">Room {c.room_number}</div>
-                      <div className="truncate text-xs text-muted-foreground">
-                        {c.first_name} {c.last_name}
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardContent className="p-6">
+                <div className="text-sm font-semibold">Upcoming check-outs</div>
+                <div className="mt-3 grid gap-2 text-sm">
+                  {(data?.checkouts?.length ?? 0) === 0 ? (
+                    <div className="text-muted-foreground">No upcoming check-outs.</div>
+                  ) : (
+                    data?.checkouts.map((c: any) => (
+                      <div key={c.id} className="flex items-center justify-between gap-3 rounded-2xl border bg-card px-3 py-2">
+                        <div className="min-w-0">
+                          <div className="font-medium">Room {c.room_number}</div>
+                          <div className="truncate text-xs text-muted-foreground">
+                            {c.first_name} {c.last_name}
+                          </div>
+                        </div>
+                        <div className="text-xs text-muted-foreground">{c.check_out_date}</div>
                       </div>
-                    </div>
-                    <div className="text-xs text-muted-foreground">{c.check_out_date}</div>
-                  </div>
-                ))
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
 
-        <Card className="shadow-soft lg:col-span-1">
-          <CardContent className="p-6">
-            <div className="text-sm font-semibold">Low inventory alerts</div>
-            <div className="mt-3 grid gap-2 text-sm">
-              {(data?.low?.length ?? 0) === 0 ? (
-                <div className="text-muted-foreground">No low-stock items.</div>
-              ) : (
-                data?.low.map((i: any) => (
-                  <div key={i.id} className="flex items-center justify-between gap-3 rounded-lg border bg-card px-3 py-2">
-                    <div className="min-w-0">
-                      <div className="font-medium">{i.name}</div>
-                      <div className="text-xs text-muted-foreground">Reorder at {i.reorder_level} {i.unit}</div>
-                    </div>
-                    <div className="text-xs">{i.current_stock} {i.unit}</div>
-                  </div>
-                ))
-              )}
-            </div>
-          </CardContent>
-        </Card>
+            <Card>
+              <CardContent className="p-6">
+                <div className="text-sm font-semibold">Low inventory alerts</div>
+                <div className="mt-3 grid gap-2 text-sm">
+                  {(data?.low?.length ?? 0) === 0 ? (
+                    <div className="text-muted-foreground">No low-stock items.</div>
+                  ) : (
+                    data?.low.map((i: any) => (
+                      <div key={i.id} className="flex items-center justify-between gap-3 rounded-2xl border bg-card px-3 py-2">
+                        <div className="min-w-0">
+                          <div className="font-medium">{i.name}</div>
+                          <div className="text-xs text-muted-foreground">Reorder at {i.reorder_level} {i.unit}</div>
+                        </div>
+                        <div className="text-xs">{i.current_stock} {i.unit}</div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        {/* Right rail */}
+        <aside className="lg:col-span-3">
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-sm font-semibold">This month</div>
+              <div className="mt-3 grid gap-3">
+                <div className="rounded-2xl border bg-card px-4 py-3">
+                  <div className="text-xs text-muted-foreground">Net profit</div>
+                  <div className="mt-1 text-lg font-semibold">{isLoading ? "—" : `$${data?.profitMonth.toFixed(2)}`}</div>
+                </div>
+                <div className="rounded-2xl border bg-card px-4 py-3">
+                  <div className="text-xs text-muted-foreground">Expenses</div>
+                  <div className="mt-1 text-lg font-semibold">{isLoading ? "—" : `$${data?.expensesMonth.toFixed(2)}`}</div>
+                </div>
+                <div className="rounded-2xl border bg-card px-4 py-3">
+                  <div className="text-xs text-muted-foreground">Income</div>
+                  <div className="mt-1 text-lg font-semibold">{isLoading ? "—" : `$${data?.incomeMonth.toFixed(2)}`}</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </aside>
       </div>
     </div>
   );
