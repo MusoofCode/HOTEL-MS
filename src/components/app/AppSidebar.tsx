@@ -53,14 +53,14 @@ export function AppSidebar() {
     >
       <SidebarContent>
         <div className="px-3 pt-3">
-          <div className="rounded-lg border bg-card p-3 shadow-soft">
-            <div className="text-xs font-medium text-muted-foreground">Hotel Management</div>
+          <div className="rounded-2xl border bg-card p-3 shadow-soft">
+            <div className="text-xs font-medium text-muted-foreground">Navigation</div>
             <div className="mt-1 text-sm font-semibold">Admin Console</div>
           </div>
         </div>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Operations</SidebarGroupLabel>
+          <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>Operations</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => (
@@ -68,10 +68,10 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      className="rounded-md"
-                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                      className="rounded-full px-3 py-2 transition-colors hover:bg-sidebar-accent/70"
+                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground shadow-soft"
                     >
-                      <item.icon />
+                      <item.icon className="opacity-80" />
                       {!collapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>

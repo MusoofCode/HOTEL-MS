@@ -64,7 +64,7 @@ export default {
       },
       backgroundImage: {
         "brand-glow":
-          "radial-gradient(900px circle at 10% 10%, hsl(var(--primary) / 0.22), transparent 55%), radial-gradient(900px circle at 90% 20%, hsl(var(--primary) / 0.14), transparent 60%)",
+          "radial-gradient(900px circle at 18% 10%, hsl(var(--primary) / 0.12), transparent 55%), radial-gradient(900px circle at 88% 18%, hsl(var(--primary) / 0.10), transparent 60%)",
       },
       borderRadius: {
         lg: "var(--radius)",
