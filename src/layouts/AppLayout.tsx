@@ -1,13 +1,12 @@
 import * as React from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { LogOut, ShieldCheck } from "lucide-react";
+import { Building2 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
-import { Button } from "@/components/ui/button";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app/AppSidebar";
-import { ConfirmDialog } from "@/components/app/ConfirmDialog";
+import { ThemeToggle } from "@/components/app/ThemeToggle";
 
 export function AppLayout() {
   const navigate = useNavigate();
@@ -44,29 +43,14 @@ export function AppLayout() {
             <SidebarTrigger className="ml-1" />
             <div className="flex items-center gap-2">
               <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border bg-card shadow-soft">
-                <ShieldCheck className="h-4 w-4" />
-              </div>
-              <div className="leading-tight">
-                <div className="text-sm font-semibold">Hotel Admin</div>
-                <div className="text-xs text-muted-foreground">Operations overview</div>
+                <Building2 className="h-4 w-4" />
               </div>
             </div>
           </div>
 
-          <ConfirmDialog
-            title="Log out?"
-            description="You will need to sign in again to access the admin dashboard."
-            confirmLabel="Log out"
-            onConfirm={async () => {
-              await supabase.auth.signOut();
-              navigate("/login", { replace: true });
-            }}
-          >
-            <Button variant="outline" size="sm">
-              <LogOut />
-              Logout
-            </Button>
-          </ConfirmDialog>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+          </div>
         </header>
 
         <div className="flex w-full">

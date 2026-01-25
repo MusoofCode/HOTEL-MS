@@ -1,9 +1,11 @@
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Plus } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/pages/app/_ui";
 import { toast } from "@/components/ui/sonner";
+import { Button } from "@/components/ui/button";
 
 import { RoomTypeDialog } from "@/pages/app/rooms/RoomTypeDialog";
 import { RoomDialog } from "@/pages/app/rooms/RoomDialog";
@@ -145,6 +147,14 @@ export default function Rooms() {
         subtitle="Room types, nightly pricing, and room availability status."
         actions={
           <>
+            <Button variant="outline" onClick={() => setOpenType(true)}>
+              <Plus />
+              Add room type
+            </Button>
+            <Button variant="hero" onClick={() => setOpenRoom(true)}>
+              <Plus />
+              Add room
+            </Button>
             <RoomTypeDialog
               mode="create"
               open={openType}
