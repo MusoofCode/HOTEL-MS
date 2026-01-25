@@ -7,7 +7,7 @@ import { subscribeTables } from "@/lib/realtime";
 import { PageHeader, StatCard } from "@/pages/app/_ui";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
 function iso(d: Date) {
   return formatISO(d, { representation: "date" });
@@ -80,12 +80,19 @@ async function analyticsLastNDays(days: number) {
   const fromIso = from.toISOString();
   const toIso = addDays(to, 1).toISOString();
 
-  const [pay, exp] = await Promise.all([
+  const [pay, exp, res] = await Promise.all([
     supabase.from("payments").select("amount,paid_at").gte("paid_at", fromIso).lt("paid_at", toIso),
     supabase.from("expenses").select("amount,expense_date").gte("expense_date", iso(from)).lte("expense_date", iso(to)),
+    supabase
+      .from("reservations")
+      .select("created_at,check_in_date,check_out_date,status")
+      .gte("created_at", fromIso)
+      .lt("created_at", toIso)
+      .in("status", ["confirmed", "checked_in"]),
   ]);
   if (pay.error) throw pay.error;
   if (exp.error) throw exp.error;
+  if (res.error) throw res.error;
 
   const daysList: string[] = [];
   for (let d = new Date(from); d <= to; d = addDays(d, 1)) daysList.push(iso(d));
@@ -102,12 +109,53 @@ async function analyticsLastNDays(days: number) {
     expByDay.set(k, (expByDay.get(k) ?? 0) + Number(r.amount ?? 0));
   }
 
+  const createdByDay = new Map<string, number>();
+  const activeReservations: Array<{ check_in_date: string; check_out_date: string; status: string }> = [];
+  for (const r of res.data ?? []) {
+    const k = dateKeyFromIsoTimestamp(String(r.created_at));
+    createdByDay.set(k, (createdByDay.get(k) ?? 0) + 1);
+    // For occupancy we need all active reservations overlapping the day.
+    if (r.status === "confirmed" || r.status === "checked_in") {
+      activeReservations.push({
+        check_in_date: String((r as any).check_in_date),
+        check_out_date: String((r as any).check_out_date),
+        status: String(r.status),
+      });
+    }
+  }
+
   return daysList.map((d) => ({
     day: d.slice(5),
     income: Number(((incomeByDay.get(d) ?? 0) as number).toFixed(2)),
     expenses: Number(((expByDay.get(d) ?? 0) as number).toFixed(2)),
     net: Number((((incomeByDay.get(d) ?? 0) - (expByDay.get(d) ?? 0)) as number).toFixed(2)),
+    bookings: createdByDay.get(d) ?? 0,
+    occupancy: activeReservations.reduce((acc, r) => {
+      // Overlap: [check_in, check_out)
+      return r.check_in_date <= d && r.check_out_date > d ? acc + 1 : acc;
+    }, 0),
   }));
+}
+
+async function expenseCategoriesThisMonth() {
+  const from = iso(startOfMonth(new Date()));
+  const to = iso(new Date());
+  const { data, error } = await supabase
+    .from("expenses")
+    .select("amount,category,expense_date")
+    .gte("expense_date", from)
+    .lte("expense_date", to);
+  if (error) throw error;
+
+  const by = new Map<string, number>();
+  for (const r of data ?? []) {
+    const k = String(r.category ?? "other");
+    by.set(k, (by.get(k) ?? 0) + Number(r.amount ?? 0));
+  }
+
+  return Array.from(by.entries())
+    .map(([category, total]) => ({ category, total: Number(total.toFixed(2)) }))
+    .sort((a, b) => b.total - a.total);
 }
 
 export default function Dashboard() {
@@ -122,7 +170,7 @@ export default function Dashboard() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["dashboard"],
     queryFn: async () => {
-      const [incomeToday, incomeMonth, incomeYear, expensesMonth, occ, rooms, checkouts, low, series30] = await Promise.all([
+      const [incomeToday, incomeMonth, incomeYear, expensesMonth, occ, rooms, checkouts, low, series30, expCats] = await Promise.all([
         sumPaymentsSince(startOfDay(new Date())),
         sumPaymentsSince(startOfMonth(new Date())),
         sumPaymentsSince(startOfYear(new Date())),
@@ -132,12 +180,13 @@ export default function Dashboard() {
         upcomingCheckouts(),
         lowStock(),
         analyticsLastNDays(30),
+        expenseCategoriesThisMonth(),
       ]);
 
       const available = Math.max(0, rooms - occ);
       const profitMonth = incomeMonth - expensesMonth;
 
-      return { incomeToday, incomeMonth, incomeYear, expensesMonth, profitMonth, occ, rooms, available, checkouts, low, series30 };
+      return { incomeToday, incomeMonth, incomeYear, expensesMonth, profitMonth, occ, rooms, available, checkouts, low, series30, expCats };
     },
   });
 
@@ -206,6 +255,58 @@ export default function Dashboard() {
                         />
                         <Area type="monotone" dataKey="net" stroke="var(--color-net)" fillOpacity={0} strokeWidth={1.5} />
                       </AreaChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="text-sm font-semibold">Occupancy & bookings</div>
+                <div className="mt-1 text-xs text-muted-foreground">Last 30 days</div>
+                <div className="mt-4">
+                  <ChartContainer
+                    className="h-[220px] w-full"
+                    config={{
+                      occupancy: { label: "Occupancy", color: "hsl(var(--primary))" },
+                      bookings: { label: "Bookings", color: "hsl(var(--muted-foreground))" },
+                    }}
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={(data as any)?.series30 ?? []} margin={{ left: 4, right: 8, top: 10, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="day" tickMargin={8} />
+                        <YAxis tickMargin={8} />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar dataKey="occupancy" fill="var(--color-occupancy)" radius={[8, 8, 0, 0]} />
+                        <Bar dataKey="bookings" fill="var(--color-bookings)" radius={[8, 8, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="text-sm font-semibold">Expenses by category</div>
+                <div className="mt-1 text-xs text-muted-foreground">This month</div>
+                <div className="mt-4">
+                  <ChartContainer
+                    className="h-[220px] w-full"
+                    config={{
+                      total: { label: "Total", color: "hsl(var(--destructive))" },
+                    }}
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={(data as any)?.expCats ?? []} margin={{ left: 4, right: 8, top: 10, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="category" tickMargin={8} />
+                        <YAxis tickMargin={8} />
+                        <ChartTooltip content={<ChartTooltipContent nameKey="category" />} />
+                        <Bar dataKey="total" fill="var(--color-total)" radius={[10, 10, 0, 0]} />
+                      </BarChart>
                     </ResponsiveContainer>
                   </ChartContainer>
                 </div>

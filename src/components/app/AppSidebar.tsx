@@ -68,8 +68,8 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      className="rounded-full px-3 py-2 transition-colors hover:bg-sidebar-accent/70"
-                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground shadow-soft"
+                      className="rounded-full px-3 py-2 transition-all hover:shadow-soft bg-[hsl(var(--pill))] text-[hsl(var(--pill-foreground))]"
+                      activeClassName="shadow-soft bg-[hsl(var(--pill-active))] text-[hsl(var(--pill-active-foreground))]"
                     >
                       <item.icon className="opacity-80" />
                       {!collapsed && <span>{item.title}</span>}
