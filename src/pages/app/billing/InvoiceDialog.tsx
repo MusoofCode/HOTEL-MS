@@ -20,6 +20,8 @@ import { invoiceSchema, type InvoiceValues } from "@/pages/app/billing/invoiceSc
 
 type Option = { id: string; label: string };
 
+const NONE_VALUE = "__none__";
+
 export function InvoiceDialog({
   open,
   onOpenChange,
@@ -117,14 +119,17 @@ export function InvoiceDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Customer (optional)</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value ? field.value : NONE_VALUE}
+                      onValueChange={(v) => field.onChange(v === NONE_VALUE ? "" : v)}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select customer" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">None</SelectItem>
+                        <SelectItem value={NONE_VALUE}>None</SelectItem>
                         {customers.map((c) => (
                           <SelectItem key={c.id} value={c.id}>
                             {c.label}
@@ -143,14 +148,17 @@ export function InvoiceDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Reservation (optional)</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value ? field.value : NONE_VALUE}
+                      onValueChange={(v) => field.onChange(v === NONE_VALUE ? "" : v)}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select reservation" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">None</SelectItem>
+                        <SelectItem value={NONE_VALUE}>None</SelectItem>
                         {reservations.map((r) => (
                           <SelectItem key={r.id} value={r.id}>
                             {r.label}
