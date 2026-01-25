@@ -8,57 +8,66 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Soft light canvas (screenshot-inspired) */
-    --background: 210 20% 96%;
+    /* Soft clinic-style canvas (ref screenshot) */
+    --background: 210 18% 93%;
     --foreground: 222 22% 14%;
 
-    --card: 0 0% 100%;
+    /* Slightly frosted surface */
+    --card: 210 25% 98%;
     --card-foreground: 222 22% 14%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 222 22% 14%;
 
-    /* Calm teal accent */
-    --primary: 187 63% 40%;
+    /* Calm teal accent (ref screenshot) */
+    --primary: 187 58% 42%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 18% 92%;
+    --secondary: 210 16% 90%;
     --secondary-foreground: 222 22% 16%;
 
-    --muted: 210 18% 92%;
-    --muted-foreground: 220 10% 42%;
+    --muted: 210 16% 90%;
+    --muted-foreground: 220 9% 44%;
 
-    --accent: 210 22% 90%;
+    /* Soft blue-gray accent used for chips/pills */
+    --accent: 210 18% 88%;
     --accent-foreground: 222 22% 16%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 210 14% 86%;
-    --input: 210 14% 86%;
-    --ring: 187 63% 40%;
+    --border: 210 12% 84%;
+    --input: 210 12% 84%;
+    --ring: 187 58% 42%;
 
-    --radius: 1rem;
+    --radius: 1.25rem;
 
-    --sidebar-background: 210 20% 96%;
+    /* Sidebar a touch deeper than canvas */
+    --sidebar-background: 210 16% 91%;
 
     --sidebar-foreground: 222 18% 18%;
 
-    --sidebar-primary: 187 63% 40%;
+    --sidebar-primary: 187 58% 42%;
 
     --sidebar-primary-foreground: 0 0% 100%;
 
-    --sidebar-accent: 210 18% 92%;
+    --sidebar-accent: 210 18% 88%;
 
     --sidebar-accent-foreground: 222 22% 14%;
 
-    --sidebar-border: 210 14% 86%;
+    --sidebar-border: 210 12% 84%;
 
-    --sidebar-ring: 187 63% 40%;
+    --sidebar-ring: 187 58% 42%;
+
+    /* Extra tokens for "pill" UI and gentle highlights */
+    --pill: 0 0% 100%;
+    --pill-foreground: 222 22% 14%;
+    --pill-active: 222 22% 14%;
+    --pill-active-foreground: 210 25% 98%;
 
     /* Soft depth */
-    --shadow-elev: 0 22px 60px -28px hsl(222 22% 14% / 0.22);
-    --shadow-soft: 0 12px 30px -18px hsl(222 22% 14% / 0.14);
+    --shadow-elev: 0 28px 70px -34px hsl(222 22% 14% / 0.22);
+    --shadow-soft: 0 14px 34px -22px hsl(222 22% 14% / 0.12);
   }
 
   .dark {
@@ -72,7 +81,7 @@ All colors MUST be HSL.
     --popover: 222 18% 12%;
     --popover-foreground: 210 20% 96%;
 
-    --primary: 187 63% 46%;
+    --primary: 187 58% 50%;
     --primary-foreground: 222 20% 10%;
 
     --secondary: 222 16% 16%;
@@ -101,6 +110,11 @@ All colors MUST be HSL.
 
     --shadow-elev: 0 22px 60px -30px hsl(0 0% 0% / 0.55);
     --shadow-soft: 0 12px 30px -18px hsl(0 0% 0% / 0.4);
+
+    --pill: 222 18% 12%;
+    --pill-foreground: 210 20% 96%;
+    --pill-active: 210 20% 96%;
+    --pill-active-foreground: 222 20% 10%;
   }
 }
 
