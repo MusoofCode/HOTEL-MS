@@ -385,10 +385,15 @@ export default function Billing() {
                         size="sm"
                         disabled={printInv.isPending}
                         onClick={() => {
-                          const w = window.open("", "_blank", "noopener,noreferrer");
+                          const w = window.open("", "_blank");
                           if (!w) {
                             toast("Popup blocked", { description: "Allow popups to print." });
                             return;
+                          }
+                          try {
+                            w.focus();
+                          } catch {
+                            // ignore
                           }
                           printInv.mutate({ invoiceId: inv.id, w });
                         }}
