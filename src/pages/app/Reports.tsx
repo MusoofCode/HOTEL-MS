@@ -1,13 +1,13 @@
 import { PageHeader } from "@/pages/app/_ui";
-import { Card, CardContent } from "@/components/ui/card";
+import { ModulePlaceholderCard } from "@/pages/app/_placeholders";
 
 export default function Reports() {
   return (
-    <div>
+    <div className="space-y-4">
       <PageHeader title="Reports" subtitle="Daily, monthly, and custom-range exports." />
-      <Card className="shadow-soft">
-        <CardContent className="p-6 text-sm text-muted-foreground">Reports module UI is being wired up.</CardContent>
-      </Card>
+      <ModulePlaceholderCard title="Reports">
+        Export daily/monthly summaries and custom date ranges with the same soft-light table layout.
+      </ModulePlaceholderCard>
     </div>
   );
 }

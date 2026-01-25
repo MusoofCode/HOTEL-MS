@@ -1,15 +1,13 @@
 import { PageHeader } from "@/pages/app/_ui";
-import { Card, CardContent } from "@/components/ui/card";
+import { ModulePlaceholderCard } from "@/pages/app/_placeholders";
 
 export default function Reservations() {
   return (
-    <div>
+    <div className="space-y-4">
       <PageHeader title="Reservations" subtitle="Create bookings with conflict-proof availability." />
-      <Card className="shadow-soft">
-        <CardContent className="p-6 text-sm text-muted-foreground">
-          Reservations module UI is being wired up.
-        </CardContent>
-      </Card>
+      <ModulePlaceholderCard title="Reservations">
+        Reservation creation, availability checks, and payment flows are next in the build queue.
+      </ModulePlaceholderCard>
     </div>
   );
 }
