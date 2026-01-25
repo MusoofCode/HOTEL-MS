@@ -19,22 +19,33 @@ import { roomSchema, type RoomFormValues } from "@/pages/app/rooms/schemas";
 type RoomTypeOption = { id: string; name: string };
 
 export function RoomDialog({
+  mode = "create",
   open,
   onOpenChange,
   roomTypes,
   onCreate,
+  onUpdate,
+  initialValues,
   isCreating,
 }: {
+  mode?: "create" | "edit";
   open: boolean;
   onOpenChange: (open: boolean) => void;
   roomTypes: RoomTypeOption[];
   onCreate: (values: RoomFormValues) => void;
+  onUpdate?: (values: RoomFormValues) => void;
+  initialValues?: RoomFormValues;
   isCreating: boolean;
 }) {
   const form = useForm<RoomFormValues>({
     resolver: zodResolver(roomSchema),
-    defaultValues: { room_number: "", room_type_id: "", rate_override: undefined },
+    defaultValues: initialValues ?? { room_number: "", room_type_id: "", rate_override: undefined },
   });
+
+  React.useEffect(() => {
+    if (!open) return;
+    form.reset(initialValues ?? { room_number: "", room_type_id: "", rate_override: undefined });
+  }, [open, initialValues, form]);
 
   const typeNameById = React.useMemo(() => {
     const map = new Map<string, string>();
@@ -50,15 +61,18 @@ export function RoomDialog({
         if (!v) form.reset();
       }}
     >
-      <DialogTrigger asChild>
-        <Button variant="hero">New Room</Button>
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create room</DialogTitle>
+          <DialogTitle>{mode === "create" ? "Create room" : "Edit room"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form className="grid gap-4" onSubmit={form.handleSubmit((v) => onCreate(v))}>
+          <form
+            className="grid gap-4"
+            onSubmit={form.handleSubmit((v) => {
+              if (mode === "create") onCreate(v);
+              else onUpdate?.(v);
+            })}
+          >
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <FormField
                 control={form.control}
@@ -116,7 +130,7 @@ export function RoomDialog({
 
             <div className="flex justify-end">
               <Button variant="hero" type="submit" disabled={isCreating}>
-                Create
+                {mode === "create" ? "Create" : "Save"}
               </Button>
             </div>
           </form>

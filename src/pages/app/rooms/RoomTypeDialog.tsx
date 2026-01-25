@@ -1,3 +1,4 @@
+import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -9,20 +10,31 @@ import { Input } from "@/components/ui/input";
 import { roomTypeSchema, type RoomTypeValues } from "@/pages/app/rooms/schemas";
 
 export function RoomTypeDialog({
+  mode = "create",
   open,
   onOpenChange,
+  initialValues,
   onCreate,
+  onUpdate,
   isCreating,
 }: {
+  mode?: "create" | "edit";
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialValues?: RoomTypeValues;
   onCreate: (values: RoomTypeValues) => void;
+  onUpdate?: (values: RoomTypeValues) => void;
   isCreating: boolean;
 }) {
   const form = useForm<z.infer<typeof roomTypeSchema>>({
     resolver: zodResolver(roomTypeSchema),
-    defaultValues: { name: "", base_rate: 0, max_occupancy: 2 },
+    defaultValues: initialValues ?? { name: "", base_rate: 0, max_occupancy: 2 },
   });
+
+  React.useEffect(() => {
+    if (!open) return;
+    form.reset(initialValues ?? { name: "", base_rate: 0, max_occupancy: 2 });
+  }, [open, initialValues, form]);
 
   return (
     <Dialog
@@ -32,15 +44,19 @@ export function RoomTypeDialog({
         if (!v) form.reset();
       }}
     >
-      <DialogTrigger asChild>
-        <Button variant="outline">New Room Type</Button>
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create room type</DialogTitle>
+          <DialogTitle>{mode === "create" ? "Create room type" : "Edit room type"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form className="grid gap-4" onSubmit={form.handleSubmit((v) => onCreate(v as unknown as RoomTypeValues))}>
+          <form
+            className="grid gap-4"
+            onSubmit={form.handleSubmit((v) => {
+              const values = v as unknown as RoomTypeValues;
+              if (mode === "create") onCreate(values);
+              else onUpdate?.(values);
+            })}
+          >
             <FormField
               control={form.control}
               name="name"
@@ -84,7 +100,7 @@ export function RoomTypeDialog({
             </div>
             <div className="flex justify-end">
               <Button variant="hero" type="submit" disabled={isCreating}>
-                Create
+                {mode === "create" ? "Create" : "Save"}
               </Button>
             </div>
           </form>
