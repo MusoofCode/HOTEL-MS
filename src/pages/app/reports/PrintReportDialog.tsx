@@ -329,10 +329,15 @@ export function PrintReportDialog({
               disabled={printMutation.isPending}
               onClick={() => {
                 // Open the window synchronously to avoid popup blockers.
-                const w = window.open("", "_blank", "noopener,noreferrer");
+                const w = window.open("", "_blank");
                 if (!w) {
                   toast("Popup blocked", { description: "Allow popups to print." });
                   return;
+                }
+                try {
+                  w.focus();
+                } catch {
+                  // ignore
                 }
                 printMutation.mutate(w);
               }}

@@ -51,7 +51,9 @@ export function openPrintWindow({
   subtitle?: string;
   sections: PrintSection[];
 }) {
-  const w = window.open("", "_blank", "noopener,noreferrer");
+  // Avoid window features like "noopener,noreferrer" here; they can be inconsistent across browsers
+  // and sometimes interfere with printing workflows.
+  const w = window.open("", "_blank");
   if (!w) return;
 
   renderPrintWindow(w, { title, subtitle, sections });
@@ -195,11 +197,38 @@ export function renderPrintWindow(
     <body>
       ${body}
       <script>
-        window.addEventListener('load', () => {
-          setTimeout(() => window.print(), 50);
-        });
+        (function () {
+          function tryPrint() {
+            try {
+              window.focus();
+              window.print();
+            } catch (e) {
+              // ignore
+            }
+          }
+
+          // Most reliable across browsers: try on DOMContentLoaded + load + a delayed fallback.
+          document.addEventListener('DOMContentLoaded', () => setTimeout(tryPrint, 50));
+          window.addEventListener('load', () => setTimeout(tryPrint, 50));
+          setTimeout(tryPrint, 350);
+        })();
       </script>
     </body>
   </html>`);
   w.document.close();
+
+  // Extra fallback from opener side.
+  try {
+    w.focus();
+    setTimeout(() => {
+      try {
+        w.focus();
+        w.print();
+      } catch {
+        // ignore
+      }
+    }, 500);
+  } catch {
+    // ignore
+  }
 }
