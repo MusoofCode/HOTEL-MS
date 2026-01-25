@@ -7,6 +7,7 @@ import { toast } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app/AppSidebar";
+import { ConfirmDialog } from "@/components/app/ConfirmDialog";
 
 export function AppLayout() {
   const navigate = useNavigate();
@@ -52,17 +53,20 @@ export function AppLayout() {
             </div>
           </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={async () => {
+          <ConfirmDialog
+            title="Log out?"
+            description="You will need to sign in again to access the admin dashboard."
+            confirmLabel="Log out"
+            onConfirm={async () => {
               await supabase.auth.signOut();
               navigate("/login", { replace: true });
             }}
           >
-            <LogOut />
-            Logout
-          </Button>
+            <Button variant="outline" size="sm">
+              <LogOut />
+              Logout
+            </Button>
+          </ConfirmDialog>
         </header>
 
         <div className="flex w-full">
