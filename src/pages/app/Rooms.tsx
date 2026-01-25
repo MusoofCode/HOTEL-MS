@@ -15,6 +15,8 @@ export default function Rooms() {
   const qc = useQueryClient();
   const [openType, setOpenType] = React.useState(false);
   const [openRoom, setOpenRoom] = React.useState(false);
+  const [editingType, setEditingType] = React.useState<any | null>(null);
+  const [editingRoom, setEditingRoom] = React.useState<any | null>(null);
 
   const types = useQuery({
     queryKey: ["room_types"],
@@ -57,6 +59,36 @@ export default function Rooms() {
     onError: (e: any) => toast("Failed", { description: e.message }),
   });
 
+  const updateType = useMutation({
+    mutationFn: async ({ id, values }: { id: string; values: RoomTypeValues }) => {
+      const payload = {
+        name: values.name,
+        base_rate: Number(values.base_rate),
+        max_occupancy: Number(values.max_occupancy),
+      };
+      const { error } = await supabase.from("room_types").update(payload).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["room_types"] });
+      toast("Room type updated");
+      setEditingType(null);
+    },
+    onError: (e: any) => toast("Failed", { description: e.message }),
+  });
+
+  const deleteType = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("room_types").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["room_types"] });
+      toast("Room type deleted");
+    },
+    onError: (e: any) => toast("Failed", { description: e.message }),
+  });
+
   const createRoom = useMutation({
     mutationFn: async (values: RoomFormValues) => {
       const payload: any = {
@@ -75,6 +107,37 @@ export default function Rooms() {
     onError: (e: any) => toast("Failed", { description: e.message }),
   });
 
+  const updateRoom = useMutation({
+    mutationFn: async ({ id, values }: { id: string; values: RoomFormValues }) => {
+      const payload: any = {
+        room_number: values.room_number,
+        room_type_id: values.room_type_id,
+      };
+      if (typeof values.rate_override === "number" && !Number.isNaN(values.rate_override)) payload.rate_override = values.rate_override;
+      else payload.rate_override = null;
+      const { error } = await supabase.from("rooms").update(payload).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["rooms"] });
+      toast("Room updated");
+      setEditingRoom(null);
+    },
+    onError: (e: any) => toast("Failed", { description: e.message }),
+  });
+
+  const deleteRoom = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("rooms").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["rooms"] });
+      toast("Room deleted");
+    },
+    onError: (e: any) => toast("Failed", { description: e.message }),
+  });
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -83,12 +146,14 @@ export default function Rooms() {
         actions={
           <>
             <RoomTypeDialog
+              mode="create"
               open={openType}
               onOpenChange={setOpenType}
               onCreate={(v) => createType.mutate(v)}
               isCreating={createType.isPending}
             />
             <RoomDialog
+              mode="create"
               open={openRoom}
               onOpenChange={setOpenRoom}
               roomTypes={(types.data ?? []).map((t: any) => ({ id: t.id, name: t.name }))}
@@ -100,9 +165,67 @@ export default function Rooms() {
       />
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <RoomTypesCard types={(types.data ?? []) as any} isLoading={types.isLoading} />
-        <RoomsCard rooms={(rooms.data ?? []) as any} isLoading={rooms.isLoading} />
+        <RoomTypesCard
+          types={(types.data ?? []) as any}
+          isLoading={types.isLoading}
+          onEdit={(t) => setEditingType(t)}
+          onDelete={(t) => deleteType.mutate(t.id)}
+        />
+        <RoomsCard
+          rooms={(rooms.data ?? []) as any}
+          isLoading={rooms.isLoading}
+          onEdit={(r) => setEditingRoom(r)}
+          onDelete={(r) => deleteRoom.mutate(r.id)}
+        />
       </div>
+
+      {/* Edit dialogs */}
+      <RoomTypeDialog
+        mode="edit"
+        open={Boolean(editingType)}
+        onOpenChange={(v) => {
+          if (!v) setEditingType(null);
+        }}
+        initialValues={
+          editingType
+            ? {
+                name: editingType.name,
+                base_rate: Number(editingType.base_rate),
+                max_occupancy: Number(editingType.max_occupancy),
+              }
+            : undefined
+        }
+        onCreate={() => void 0}
+        onUpdate={(v) => {
+          if (!editingType) return;
+          updateType.mutate({ id: editingType.id, values: v });
+        }}
+        isCreating={updateType.isPending}
+      />
+
+      <RoomDialog
+        mode="edit"
+        open={Boolean(editingRoom)}
+        onOpenChange={(v) => {
+          if (!v) setEditingRoom(null);
+        }}
+        roomTypes={(types.data ?? []).map((t: any) => ({ id: t.id, name: t.name }))}
+        initialValues={
+          editingRoom
+            ? {
+                room_number: editingRoom.room_number,
+                room_type_id: editingRoom.room_type_id,
+                rate_override: editingRoom.rate_override ?? undefined,
+              }
+            : undefined
+        }
+        onCreate={() => void 0}
+        onUpdate={(v) => {
+          if (!editingRoom) return;
+          updateRoom.mutate({ id: editingRoom.id, values: v });
+        }}
+        isCreating={updateRoom.isPending}
+      />
     </div>
   );
 }
