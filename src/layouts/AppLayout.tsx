@@ -7,6 +7,7 @@ import { toast } from "@/components/ui/sonner";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app/AppSidebar";
 import { ThemeToggle } from "@/components/app/ThemeToggle";
+import { NotificationsButton } from "@/components/app/NotificationsButton";
 
 export function AppLayout() {
   const navigate = useNavigate();
@@ -49,6 +50,7 @@ export function AppLayout() {
           </div>
 
           <div className="flex items-center gap-2">
+            <NotificationsButton />
             <ThemeToggle />
           </div>
         </header>

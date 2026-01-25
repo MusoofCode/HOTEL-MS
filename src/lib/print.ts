@@ -3,6 +3,8 @@ type PrintSection = {
   html: string;
 };
 
+export type PrintWindowHandle = Window;
+
 function escapeHtml(s: string) {
   // Avoid String.prototype.replaceAll for wider TS lib compatibility.
   return s
@@ -51,6 +53,24 @@ export function openPrintWindow({
 }) {
   const w = window.open("", "_blank", "noopener,noreferrer");
   if (!w) return;
+
+  renderPrintWindow(w, { title, subtitle, sections });
+}
+
+export function renderPrintWindow(
+  w: PrintWindowHandle,
+  {
+    title,
+    subtitle,
+    sections,
+  }: {
+    title: string;
+    subtitle?: string;
+    sections: PrintSection[];
+  },
+) {
+  // If the window is already closed (user closed popup), just no-op.
+  if (w.closed) return;
 
   const vars = cssVarsSnapshot();
   const now = new Date();

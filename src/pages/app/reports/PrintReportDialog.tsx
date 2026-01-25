@@ -7,7 +7,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { openPrintWindow } from "@/lib/print";
+import { renderPrintWindow, type PrintWindowHandle } from "@/lib/print";
+import { logActivity } from "@/lib/activityLog";
 
 type DailyRow = {
   date: string;
@@ -95,7 +96,7 @@ export function PrintReportDialog({
   }, [open]);
 
   const printMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (w: PrintWindowHandle) => {
       const keys = (Object.keys(selected) as SectionKey[]).filter((k) => selected[k]);
       if (keys.length === 0) throw new Error("Select at least one section");
 
@@ -270,10 +271,16 @@ export function PrintReportDialog({
         });
       }
 
-      openPrintWindow({
+      renderPrintWindow(w, {
         title: "System Report",
         subtitle: "Selected sections",
         sections,
+      });
+
+      await logActivity({
+        action: "report_printed",
+        entity: "reports",
+        metadata: { sections: keys.join(",") },
       });
     },
     onError: (e: any) => toast("Print failed", { description: e.message }),
@@ -316,7 +323,20 @@ export function PrintReportDialog({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="button" variant="hero" disabled={printMutation.isPending} onClick={() => printMutation.mutate()}>
+            <Button
+              type="button"
+              variant="hero"
+              disabled={printMutation.isPending}
+              onClick={() => {
+                // Open the window synchronously to avoid popup blockers.
+                const w = window.open("", "_blank", "noopener,noreferrer");
+                if (!w) {
+                  toast("Popup blocked", { description: "Allow popups to print." });
+                  return;
+                }
+                printMutation.mutate(w);
+              }}
+            >
               Print
             </Button>
           </div>
