@@ -1,11 +1,13 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { formatISO, startOfDay, startOfMonth, startOfYear } from "date-fns";
+import { addDays, formatISO, startOfDay, startOfMonth, startOfYear } from "date-fns";
 
 import { supabase } from "@/integrations/supabase/client";
 import { subscribeTables } from "@/lib/realtime";
 import { PageHeader, StatCard } from "@/pages/app/_ui";
 import { Card, CardContent } from "@/components/ui/card";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
 function iso(d: Date) {
   return formatISO(d, { representation: "date" });
@@ -68,6 +70,46 @@ async function lowStock() {
   return data ?? [];
 }
 
+function dateKeyFromIsoTimestamp(ts: string) {
+  return ts.slice(0, 10);
+}
+
+async function analyticsLastNDays(days: number) {
+  const to = new Date();
+  const from = startOfDay(addDays(to, -days + 1));
+  const fromIso = from.toISOString();
+  const toIso = addDays(to, 1).toISOString();
+
+  const [pay, exp] = await Promise.all([
+    supabase.from("payments").select("amount,paid_at").gte("paid_at", fromIso).lt("paid_at", toIso),
+    supabase.from("expenses").select("amount,expense_date").gte("expense_date", iso(from)).lte("expense_date", iso(to)),
+  ]);
+  if (pay.error) throw pay.error;
+  if (exp.error) throw exp.error;
+
+  const daysList: string[] = [];
+  for (let d = new Date(from); d <= to; d = addDays(d, 1)) daysList.push(iso(d));
+
+  const incomeByDay = new Map<string, number>();
+  for (const r of pay.data ?? []) {
+    const k = dateKeyFromIsoTimestamp(String(r.paid_at));
+    incomeByDay.set(k, (incomeByDay.get(k) ?? 0) + Number(r.amount ?? 0));
+  }
+
+  const expByDay = new Map<string, number>();
+  for (const r of exp.data ?? []) {
+    const k = String(r.expense_date);
+    expByDay.set(k, (expByDay.get(k) ?? 0) + Number(r.amount ?? 0));
+  }
+
+  return daysList.map((d) => ({
+    day: d.slice(5),
+    income: Number(((incomeByDay.get(d) ?? 0) as number).toFixed(2)),
+    expenses: Number(((expByDay.get(d) ?? 0) as number).toFixed(2)),
+    net: Number((((incomeByDay.get(d) ?? 0) - (expByDay.get(d) ?? 0)) as number).toFixed(2)),
+  }));
+}
+
 export default function Dashboard() {
   const qc = useQueryClient();
 
@@ -80,7 +122,7 @@ export default function Dashboard() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["dashboard"],
     queryFn: async () => {
-      const [incomeToday, incomeMonth, incomeYear, expensesMonth, occ, rooms, checkouts, low] = await Promise.all([
+      const [incomeToday, incomeMonth, incomeYear, expensesMonth, occ, rooms, checkouts, low, series30] = await Promise.all([
         sumPaymentsSince(startOfDay(new Date())),
         sumPaymentsSince(startOfMonth(new Date())),
         sumPaymentsSince(startOfYear(new Date())),
@@ -89,12 +131,13 @@ export default function Dashboard() {
         roomsTotal(),
         upcomingCheckouts(),
         lowStock(),
+        analyticsLastNDays(30),
       ]);
 
       const available = Math.max(0, rooms - occ);
       const profitMonth = incomeMonth - expensesMonth;
 
-      return { incomeToday, incomeMonth, incomeYear, expensesMonth, profitMonth, occ, rooms, available, checkouts, low };
+      return { incomeToday, incomeMonth, incomeYear, expensesMonth, profitMonth, occ, rooms, available, checkouts, low, series30 };
     },
   });
 
@@ -119,6 +162,56 @@ export default function Dashboard() {
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <Card className="md:col-span-2">
+              <CardContent className="p-6">
+                <div className="flex items-end justify-between gap-3">
+                  <div>
+                    <div className="text-sm font-semibold">Analytics (last 30 days)</div>
+                    <div className="mt-1 text-xs text-muted-foreground">Income vs expenses with net trend</div>
+                  </div>
+                  <div className="text-xs text-muted-foreground">Updates live</div>
+                </div>
+
+                <div className="mt-4">
+                  <ChartContainer
+                    className="h-[240px] w-full"
+                    config={{
+                      income: { label: "Income", color: "hsl(var(--primary))" },
+                      expenses: { label: "Expenses", color: "hsl(var(--destructive))" },
+                      net: { label: "Net", color: "hsl(var(--foreground))" },
+                    }}
+                  >
+                    {/* ChartContainer already wraps ResponsiveContainer, but we keep it simple and pass children */}
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={(data as any)?.series30 ?? []} margin={{ left: 4, right: 8, top: 10, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="day" tickMargin={8} />
+                        <YAxis tickMargin={8} />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Area
+                          type="monotone"
+                          dataKey="income"
+                          stroke="var(--color-income)"
+                          fill="var(--color-income)"
+                          fillOpacity={0.12}
+                          strokeWidth={2}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="expenses"
+                          stroke="var(--color-expenses)"
+                          fill="var(--color-expenses)"
+                          fillOpacity={0.10}
+                          strokeWidth={2}
+                        />
+                        <Area type="monotone" dataKey="net" stroke="var(--color-net)" fillOpacity={0} strokeWidth={1.5} />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardContent className="p-6">
                 <div className="text-sm font-semibold">Upcoming check-outs</div>
