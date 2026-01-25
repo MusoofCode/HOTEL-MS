@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import SetupAdmin from "./pages/SetupAdmin";
@@ -28,33 +29,35 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/setup" element={<SetupAdmin />} />
-            <Route path="/login" element={<Login />} />
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/setup" element={<SetupAdmin />} />
+              <Route path="/login" element={<Login />} />
 
-            <Route element={<RequireAdmin />}>
-              <Route path="/app" element={<AppLayout />}>
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="reservations" element={<Reservations />} />
-                <Route path="rooms" element={<Rooms />} />
-                <Route path="customers" element={<Customers />} />
-                <Route path="billing" element={<Billing />} />
-                <Route path="expenses" element={<Expenses />} />
-                <Route path="inventory" element={<Inventory />} />
-                <Route path="hr" element={<HR />} />
-                <Route path="reports" element={<Reports />} />
-                <Route path="settings" element={<Settings />} />
+              <Route element={<RequireAdmin />}>
+                <Route path="/app" element={<AppLayout />}>
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="reservations" element={<Reservations />} />
+                  <Route path="rooms" element={<Rooms />} />
+                  <Route path="customers" element={<Customers />} />
+                  <Route path="billing" element={<Billing />} />
+                  <Route path="expenses" element={<Expenses />} />
+                  <Route path="inventory" element={<Inventory />} />
+                  <Route path="hr" element={<HR />} />
+                  <Route path="reports" element={<Reports />} />
+                  <Route path="settings" element={<Settings />} />
+                </Route>
               </Route>
-            </Route>
 
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </ThemeProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

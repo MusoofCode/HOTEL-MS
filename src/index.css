@@ -19,9 +19,12 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222 22% 14%;
 
-    /* Calm teal accent (ref screenshot) */
-    --primary: 187 58% 42%;
+    /* Brand accent: teal (#0a9396) */
+    --primary: 182 88% 31%;
     --primary-foreground: 0 0% 100%;
+
+    /* Brand secondary: warm amber (#ca6702) */
+    --brand-warm: 30 98% 40%;
 
     --secondary: 210 16% 90%;
     --secondary-foreground: 222 22% 16%;
@@ -29,16 +32,16 @@ All colors MUST be HSL.
     --muted: 210 16% 90%;
     --muted-foreground: 220 9% 44%;
 
-    /* Soft blue-gray accent used for chips/pills */
-    --accent: 210 18% 88%;
-    --accent-foreground: 222 22% 16%;
+    /* Warm accent used for highlights */
+    --accent: var(--brand-warm);
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 210 12% 84%;
     --input: 210 12% 84%;
-    --ring: 187 58% 42%;
+    --ring: 182 88% 31%;
 
     --radius: 1.25rem;
 
@@ -47,7 +50,7 @@ All colors MUST be HSL.
 
     --sidebar-foreground: 222 18% 18%;
 
-    --sidebar-primary: 187 58% 42%;
+    --sidebar-primary: 182 88% 31%;
 
     --sidebar-primary-foreground: 0 0% 100%;
 
@@ -57,7 +60,7 @@ All colors MUST be HSL.
 
     --sidebar-border: 210 12% 84%;
 
-    --sidebar-ring: 187 58% 42%;
+    --sidebar-ring: 182 88% 31%;
 
     /* Extra tokens for "pill" UI and gentle highlights */
     --pill: 0 0% 100%;
@@ -81,8 +84,10 @@ All colors MUST be HSL.
     --popover: 222 18% 12%;
     --popover-foreground: 210 20% 96%;
 
-    --primary: 187 58% 50%;
+    --primary: 182 88% 42%;
     --primary-foreground: 222 20% 10%;
+
+    --brand-warm: 30 98% 46%;
 
     --secondary: 222 16% 16%;
     --secondary-foreground: 210 20% 96%;
@@ -90,23 +95,23 @@ All colors MUST be HSL.
     --muted: 222 16% 16%;
     --muted-foreground: 210 10% 70%;
 
-    --accent: 222 16% 16%;
-    --accent-foreground: 210 20% 96%;
+    --accent: var(--brand-warm);
+    --accent-foreground: 222 20% 10%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 222 16% 20%;
     --input: 222 16% 20%;
-    --ring: 187 63% 46%;
+    --ring: 182 88% 42%;
     --sidebar-background: 222 20% 10%;
     --sidebar-foreground: 210 20% 96%;
-    --sidebar-primary: 187 63% 46%;
+    --sidebar-primary: 182 88% 42%;
     --sidebar-primary-foreground: 222 20% 10%;
     --sidebar-accent: 222 16% 16%;
     --sidebar-accent-foreground: 210 20% 96%;
     --sidebar-border: 222 16% 20%;
-    --sidebar-ring: 187 63% 46%;
+    --sidebar-ring: 182 88% 42%;
 
     --shadow-elev: 0 22px 60px -30px hsl(0 0% 0% / 0.55);
     --shadow-soft: 0 12px 30px -18px hsl(0 0% 0% / 0.4);

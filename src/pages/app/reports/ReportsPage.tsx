@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { downloadCsv } from "@/lib/csv";
+import { PrintReportDialog } from "@/pages/app/reports/PrintReportDialog";
 
 type DailyRow = {
   date: string;
@@ -34,6 +35,7 @@ function rangeDates(start: string, end: string) {
 export default function ReportsPage() {
   const [from, setFrom] = React.useState(() => yyyyMmDd(addDays(new Date(), -30)));
   const [to, setTo] = React.useState(() => yyyyMmDd(new Date()));
+  const [printOpen, setPrintOpen] = React.useState(false);
 
   const report = useQuery({
     queryKey: ["reports", from, to],
@@ -107,15 +109,20 @@ export default function ReportsPage() {
         title="Reports"
         subtitle="Daily performance with export-ready output."
         actions={
-          <Button
-            variant="outline"
-            onClick={() => {
-              downloadCsv(`report_${from}_to_${to}.csv`, report.data?.rows ?? []);
-            }}
-            disabled={!report.data?.rows?.length}
-          >
-            Export CSV
-          </Button>
+          <>
+            <Button variant="hero" onClick={() => setPrintOpen(true)} disabled={!report.data?.rows?.length}>
+              Print report
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                downloadCsv(`report_${from}_to_${to}.csv`, report.data?.rows ?? []);
+              }}
+              disabled={!report.data?.rows?.length}
+            >
+              Export CSV
+            </Button>
+          </>
         }
       />
 
@@ -177,6 +184,15 @@ export default function ReportsPage() {
           </CardContent>
         </Card>
       </div>
+
+      <PrintReportDialog
+        open={printOpen}
+        onOpenChange={setPrintOpen}
+        from={from}
+        to={to}
+        dailyRows={report.data?.rows ?? []}
+        totals={report.data?.totals ?? { income: 0, expenses: 0, net: 0 }}
+      />
     </div>
   );
 }

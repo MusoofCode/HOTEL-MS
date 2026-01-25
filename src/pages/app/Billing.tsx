@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Plus } from "lucide-react";
 
 import { PageHeader } from "@/pages/app/_ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +10,9 @@ import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 import { PaymentDialog, type PaymentValues } from "@/pages/app/billing/PaymentDialog";
+import { InvoiceDialog } from "@/pages/app/billing/InvoiceDialog";
+import { InvoicesTableCard } from "@/pages/app/billing/InvoicesTableCard";
+import type { InvoiceValues } from "@/pages/app/billing/invoiceSchemas";
 
 export default function Billing() {
   const qc = useQueryClient();
@@ -17,6 +21,8 @@ export default function Billing() {
     label: string;
     total: number;
   } | null>(null);
+
+  const [creatingInvoice, setCreatingInvoice] = React.useState(false);
 
   const due = useQuery({
     queryKey: ["billing_due"],
@@ -30,6 +36,83 @@ export default function Billing() {
       if (error) throw error;
       return data ?? [];
     },
+  });
+
+  const invoices = useQuery({
+    queryKey: ["billing_invoices"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("billing_invoices")
+        .select("id,invoice_no,status,total,created_at")
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const customers = useQuery({
+    queryKey: ["customers_for_invoice"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("customers").select("id,first_name,last_name,email").order("last_name");
+      if (error) throw error;
+      return (data ?? []).map((c: any) => ({
+        id: c.id,
+        label: `${c.last_name ?? ""}, ${c.first_name ?? ""}${c.email ? ` • ${c.email}` : ""}`,
+      }));
+    },
+  });
+
+  const reservations = useQuery({
+    queryKey: ["reservations_for_invoice"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("reservation_details")
+        .select("id,first_name,last_name,room_number,check_in_date,check_out_date,status")
+        .in("status", ["confirmed", "checked_in", "checked_out"])
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return (data ?? []).map((r: any) => ({
+        id: r.id,
+        label: `${r.last_name ?? ""}, ${r.first_name ?? ""} • Room ${r.room_number ?? "—"} • ${r.check_in_date ?? ""}→${r.check_out_date ?? ""}`,
+      }));
+    },
+  });
+
+  const createInvoice = useMutation({
+    mutationFn: async (values: InvoiceValues) => {
+      const invPayload: any = {
+        invoice_no: values.invoice_no?.trim() || "",
+        status: values.status,
+        notes: values.notes?.trim() || null,
+      };
+      if (values.customer_id) invPayload.customer_id = values.customer_id;
+      if (values.reservation_id) invPayload.reservation_id = values.reservation_id;
+
+      const { data: inv, error: invErr } = await supabase
+        .from("billing_invoices")
+        .insert([invPayload])
+        .select("id")
+        .single();
+      if (invErr) throw invErr;
+
+      const itemsPayload = values.items.map((it) => ({
+        invoice_id: inv.id,
+        description: it.description,
+        quantity: Number(it.quantity),
+        unit_price: Number(it.unit_price),
+      }));
+
+      const { error: itemsErr } = await supabase.from("billing_invoice_items").insert(itemsPayload);
+      if (itemsErr) throw itemsErr;
+    },
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["billing_invoices"] });
+      toast("Invoice created");
+      setCreatingInvoice(false);
+    },
+    onError: (e: any) => toast("Failed", { description: e.message }),
   });
 
   const recordPayment = useMutation({
@@ -58,7 +141,16 @@ export default function Billing() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title="Billing" subtitle="Full-only payments, invoices, and balances." />
+      <PageHeader
+        title="Billing"
+        subtitle="Full-only payments, invoices, and balances."
+        actions={
+          <Button variant="hero" onClick={() => setCreatingInvoice(true)}>
+            <Plus />
+            Add invoice
+          </Button>
+        }
+      />
 
       <Card className="shadow-soft animate-fade-in">
         <CardHeader className="pb-3">
@@ -109,6 +201,8 @@ export default function Billing() {
         </CardContent>
       </Card>
 
+      <InvoicesTableCard invoices={invoices.data ?? []} isLoading={invoices.isLoading} />
+
       <PaymentDialog
         open={Boolean(paying)}
         onOpenChange={(v) => {
@@ -121,6 +215,15 @@ export default function Billing() {
           recordPayment.mutate({ reservationId: paying.id, total: paying.total, values });
         }}
         isSaving={recordPayment.isPending}
+      />
+
+      <InvoiceDialog
+        open={creatingInvoice}
+        onOpenChange={(v) => setCreatingInvoice(v)}
+        customers={customers.data ?? []}
+        reservations={reservations.data ?? []}
+        onSubmit={(values) => createInvoice.mutate(values)}
+        isSaving={createInvoice.isPending}
       />
     </div>
   );
