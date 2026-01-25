@@ -1,13 +1,13 @@
 import { PageHeader } from "@/pages/app/_ui";
-import { Card, CardContent } from "@/components/ui/card";
+import { ModulePlaceholderCard } from "@/pages/app/_placeholders";
 
 export default function Expenses() {
   return (
-    <div>
+    <div className="space-y-4">
       <PageHeader title="Expenses" subtitle="Categorized operational expenses with receipts." />
-      <Card className="shadow-soft">
-        <CardContent className="p-6 text-sm text-muted-foreground">Expenses module UI is being wired up.</CardContent>
-      </Card>
+      <ModulePlaceholderCard title="Expenses">
+        Add and track expenses by category, attach receipts, and export to reports.
+      </ModulePlaceholderCard>
     </div>
   );
 }

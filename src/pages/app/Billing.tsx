@@ -1,13 +1,13 @@
 import { PageHeader } from "@/pages/app/_ui";
-import { Card, CardContent } from "@/components/ui/card";
+import { ModulePlaceholderCard } from "@/pages/app/_placeholders";
 
 export default function Billing() {
   return (
-    <div>
+    <div className="space-y-4">
       <PageHeader title="Billing" subtitle="Full-only payments, invoices, and balances." />
-      <Card className="shadow-soft">
-        <CardContent className="p-6 text-sm text-muted-foreground">Billing module UI is being wired up.</CardContent>
-      </Card>
+      <ModulePlaceholderCard title="Billing">
+        Payments, invoices, and customer balances will appear here (matching the new soft-light card/table style).
+      </ModulePlaceholderCard>
     </div>
   );
 }

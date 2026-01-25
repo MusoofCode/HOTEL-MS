@@ -1,13 +1,13 @@
 import { PageHeader } from "@/pages/app/_ui";
-import { Card, CardContent } from "@/components/ui/card";
+import { ModulePlaceholderCard } from "@/pages/app/_placeholders";
 
 export default function Inventory() {
   return (
-    <div>
+    <div className="space-y-4">
       <PageHeader title="Inventory" subtitle="Stock levels, movements, and low-stock alerts." />
-      <Card className="shadow-soft">
-        <CardContent className="p-6 text-sm text-muted-foreground">Inventory module UI is being wired up.</CardContent>
-      </Card>
+      <ModulePlaceholderCard title="Inventory">
+        Inventory items, stock movements, and low-stock alerts will be managed here.
+      </ModulePlaceholderCard>
     </div>
   );
 }

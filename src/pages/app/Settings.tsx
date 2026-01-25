@@ -1,13 +1,13 @@
 import { PageHeader } from "@/pages/app/_ui";
-import { Card, CardContent } from "@/components/ui/card";
+import { ModulePlaceholderCard } from "@/pages/app/_placeholders";
 
 export default function Settings() {
   return (
-    <div>
+    <div className="space-y-4">
       <PageHeader title="Settings" subtitle="Hotel profile, currency, and configuration." />
-      <Card className="shadow-soft">
-        <CardContent className="p-6 text-sm text-muted-foreground">Settings module UI is being wired up.</CardContent>
-      </Card>
+      <ModulePlaceholderCard title="Settings">
+        Property settings, currency, taxes/fees, and operational defaults will live here.
+      </ModulePlaceholderCard>
     </div>
   );
 }

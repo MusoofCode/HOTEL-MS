@@ -1,13 +1,13 @@
 import { PageHeader } from "@/pages/app/_ui";
-import { Card, CardContent } from "@/components/ui/card";
+import { ModulePlaceholderCard } from "@/pages/app/_placeholders";
 
 export default function HR() {
   return (
-    <div>
+    <div className="space-y-4">
       <PageHeader title="HR Records" subtitle="Admin-only staff records (no staff logins)." />
-      <Card className="shadow-soft">
-        <CardContent className="p-6 text-sm text-muted-foreground">HR module UI is being wired up.</CardContent>
-      </Card>
+      <ModulePlaceholderCard title="HR Records">
+        Staff profiles, documents, and role/department info will be managed here (admin-only).
+      </ModulePlaceholderCard>
     </div>
   );
 }
