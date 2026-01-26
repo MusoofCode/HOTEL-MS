@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/app/ConfirmDialog";
+import { Eye } from "lucide-react";
 
 export type CustomerRow = {
   id: string;
@@ -17,11 +18,13 @@ export function CustomersTableCard({
   isLoading,
   onEdit,
   onDelete,
+  onViewDetails,
 }: {
   customers: CustomerRow[];
   isLoading: boolean;
   onEdit: (customer: CustomerRow) => void;
   onDelete: (customer: CustomerRow) => void | Promise<void>;
+  onViewDetails?: (customer: CustomerRow) => void;
 }) {
   return (
     <Card className="shadow-soft animate-fade-in">
@@ -40,14 +43,21 @@ export function CustomersTableCard({
           </TableHeader>
           <TableBody>
             {customers.map((c) => (
-              <TableRow key={c.id}>
+              <TableRow 
+                key={c.id}
+                className="cursor-pointer"
+                onClick={() => onViewDetails?.(c)}
+              >
                 <TableCell className="font-medium">
                   {c.first_name} {c.last_name}
                 </TableCell>
                 <TableCell>{c.email ?? "—"}</TableCell>
                 <TableCell>{c.phone ?? "—"}</TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                   <div className="inline-flex items-center justify-end gap-2">
+                    <Button variant="ghost" size="sm" onClick={() => onViewDetails?.(c)}>
+                      <Eye className="h-4 w-4" />
+                    </Button>
                     <Button variant="outline" size="sm" onClick={() => onEdit(c)}>
                       Edit
                     </Button>

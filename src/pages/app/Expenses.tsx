@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { ExpenseDialog } from "@/pages/app/expenses/ExpenseDialog";
 import { ExpensesTableCard, type ExpenseRow } from "@/pages/app/expenses/ExpensesTableCard";
+import { ExpenseDetailDialog } from "@/pages/app/expenses/ExpenseDetailDialog";
 import type { ExpenseValues } from "@/pages/app/expenses/schemas";
 
 export default function Expenses() {
@@ -16,6 +17,7 @@ export default function Expenses() {
   const [q, setQ] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<ExpenseRow | null>(null);
+  const [viewing, setViewing] = React.useState<ExpenseRow | null>(null);
 
   const expenses = useQuery({
     queryKey: ["expenses", q],
@@ -125,6 +127,15 @@ export default function Expenses() {
         onEdit={(r) => setEditing(r)}
         onDelete={(r) => deleteExpense.mutate(r.id)}
         onReceiptUploaded={(id, path) => attachReceipt.mutate({ id, path })}
+        onViewDetails={(r) => setViewing(r)}
+      />
+
+      <ExpenseDetailDialog
+        expense={viewing}
+        open={Boolean(viewing)}
+        onOpenChange={(v) => {
+          if (!v) setViewing(null);
+        }}
       />
 
       <ExpenseDialog
