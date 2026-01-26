@@ -20,6 +20,12 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/app/ConfirmDialog";
 import { cn } from "@/lib/utils";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
@@ -53,11 +59,15 @@ export function AppSidebar() {
   const currentPath = location.pathname;
 
   return (
-    <Sidebar
-      variant="inset"
-      collapsible="icon"
-      className={collapsed ? "w-[--sidebar-width-icon]" : "w-[--sidebar-width]"}
-    >
+    <TooltipProvider delayDuration={0}>
+      <Sidebar
+        variant="inset"
+        collapsible="icon"
+        className={cn(
+          "transition-all duration-300 ease-in-out",
+          collapsed ? "w-[--sidebar-width-icon]" : "w-[--sidebar-width]"
+        )}
+      >
       <SidebarContent className="flex h-full flex-col py-4">
         {/* Brand Logo */}
         <div className="mb-8 flex items-center justify-center px-4">
@@ -75,22 +85,43 @@ export function AppSidebar() {
             <SidebarMenu className="space-y-2">
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      className={cn(
-                        "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200",
-                        "bg-transparent text-[hsl(var(--sidebar-foreground))] hover:bg-[hsl(var(--sidebar-accent))]",
-                        collapsed ? "justify-center" : "justify-start"
-                      )}
-                      activeClassName="bg-[hsl(var(--brand-warm))] text-white shadow-soft hover:bg-[hsl(var(--brand-warm))]"
-                    >
-                      <item.icon className={cn("transition-all duration-200", collapsed ? "h-5 w-5" : "h-5 w-5")} />
-                      {!collapsed && (
+                  {collapsed ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <SidebarMenuButton asChild>
+                          <NavLink
+                            to={item.url}
+                            className={cn(
+                              "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200",
+                              "bg-transparent text-[hsl(var(--sidebar-foreground))] hover:bg-[hsl(var(--sidebar-accent))]",
+                              "justify-center"
+                            )}
+                            activeClassName="bg-[hsl(var(--brand-warm))] text-white shadow-soft hover:bg-[hsl(var(--brand-warm))]"
+                          >
+                            <item.icon className="h-5 w-5 transition-all duration-200" />
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="font-medium">
+                        {item.title}
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to={item.url}
+                        className={cn(
+                          "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200",
+                          "bg-transparent text-[hsl(var(--sidebar-foreground))] hover:bg-[hsl(var(--sidebar-accent))]",
+                          "justify-start"
+                        )}
+                        activeClassName="bg-[hsl(var(--brand-warm))] text-white shadow-soft hover:bg-[hsl(var(--brand-warm))]"
+                      >
+                        <item.icon className="h-5 w-5 transition-all duration-200" />
                         <span className="text-sm font-medium transition-all duration-200">{item.title}</span>
-                      )}
-                    </NavLink>
-                  </SidebarMenuButton>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -99,29 +130,52 @@ export function AppSidebar() {
 
         {/* Logout pinned to bottom */}
         <div className="mt-auto p-3">
-          <ConfirmDialog
-            title="Log out?"
-            description="You will need to sign in again to access the admin dashboard."
-            confirmLabel="Log out"
-            onConfirm={async () => {
-              await supabase.auth.signOut();
-              navigate("/login", { replace: true });
-            }}
-          >
-            <Button
-              variant="outline"
-              className={
-                collapsed
-                  ? "h-10 w-10 rounded-2xl p-0"
-                  : "w-full justify-start rounded-2xl"
-              }
+          {collapsed ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <ConfirmDialog
+                  title="Log out?"
+                  description="You will need to sign in again to access the admin dashboard."
+                  confirmLabel="Log out"
+                  onConfirm={async () => {
+                    await supabase.auth.signOut();
+                    navigate("/login", { replace: true });
+                  }}
+                >
+                  <Button
+                    variant="outline"
+                    className="h-10 w-10 rounded-2xl p-0"
+                  >
+                    <LogOut />
+                  </Button>
+                </ConfirmDialog>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="font-medium">
+                Logout
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <ConfirmDialog
+              title="Log out?"
+              description="You will need to sign in again to access the admin dashboard."
+              confirmLabel="Log out"
+              onConfirm={async () => {
+                await supabase.auth.signOut();
+                navigate("/login", { replace: true });
+              }}
             >
-              <LogOut />
-              {!collapsed ? <span>Logout</span> : null}
-            </Button>
-          </ConfirmDialog>
+              <Button
+                variant="outline"
+                className="w-full justify-start rounded-2xl"
+              >
+                <LogOut />
+                <span>Logout</span>
+              </Button>
+            </ConfirmDialog>
+          )}
         </div>
       </SidebarContent>
     </Sidebar>
+    </TooltipProvider>
   );
 }
