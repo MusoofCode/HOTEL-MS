@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { CustomersTableCard, type CustomerRow } from "@/pages/app/customers/CustomersTableCard";
 import { CustomerDialog } from "@/pages/app/customers/CustomerDialog";
+import { CustomerDetailDialog } from "@/pages/app/customers/CustomerDetailDialog";
 import type { CustomerFormValues } from "@/pages/app/customers/schemas";
 
 export default function Customers() {
@@ -16,6 +17,7 @@ export default function Customers() {
   const [query, setQuery] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<CustomerRow | null>(null);
+  const [viewing, setViewing] = React.useState<CustomerRow | null>(null);
 
   const customers = useQuery({
     queryKey: ["customers", query],
@@ -125,6 +127,15 @@ export default function Customers() {
         isLoading={customers.isLoading}
         onEdit={(c) => setEditing(c)}
         onDelete={(c) => deleteCustomer.mutate(c.id)}
+        onViewDetails={(c) => setViewing(c)}
+      />
+
+      <CustomerDetailDialog
+        customer={viewing}
+        open={Boolean(viewing)}
+        onOpenChange={(v) => {
+          if (!v) setViewing(null);
+        }}
       />
 
       {/* Create */}

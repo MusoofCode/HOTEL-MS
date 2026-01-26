@@ -16,6 +16,7 @@ export default function HrPage() {
   const [q, setQ] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<HrRow | null>(null);
+  const [viewing, setViewing] = React.useState<HrRow | null>(null);
 
   const rows = useQuery({
     queryKey: ["hr_records", q],
@@ -129,7 +130,12 @@ export default function HrPage() {
         <div className="text-sm text-muted-foreground">{rows.isLoading ? "Loading…" : `${(rows.data ?? []).length} records`}</div>
       </div>
 
-      <HrTableCard rows={rows.data ?? []} isLoading={rows.isLoading} onEdit={setEditing} onDelete={(r) => deleteRow.mutate(r.id)} />
+      <HrTableCard 
+        rows={rows.data ?? []} 
+        isLoading={rows.isLoading} 
+        onEdit={setEditing} 
+        onDelete={(r) => deleteRow.mutate(r.id)}
+      />
 
       <HrDialog mode="create" open={open} onOpenChange={setOpen} onSubmit={(v) => createRow.mutate(v)} isSaving={createRow.isPending} />
 

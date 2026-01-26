@@ -58,16 +58,6 @@ export function AppSidebar() {
       className={collapsed ? "w-[--sidebar-width-icon]" : "w-[--sidebar-width]"}
     >
       <SidebarContent className="flex h-full flex-col">
-        <div className="px-3 pt-3">
-          <div className="rounded-2xl border bg-card p-3 shadow-soft">
-            <div className="flex items-center gap-2">
-              <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border bg-card shadow-soft">
-                <Building2 className="h-4 w-4" />
-              </div>
-            </div>
-          </div>
-        </div>
-
         <SidebarGroup className="mt-2">
           <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>Operations</SidebarGroupLabel>
           <SidebarGroupContent>

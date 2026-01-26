@@ -3,6 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/app/ConfirmDialog";
 import { ReceiptUploadButton } from "@/pages/app/expenses/ReceiptUploadButton";
+import { Eye } from "lucide-react";
 
 export type ExpenseRow = {
   id: string;
@@ -20,12 +21,14 @@ export function ExpensesTableCard({
   onEdit,
   onDelete,
   onReceiptUploaded,
+  onViewDetails,
 }: {
   rows: ExpenseRow[];
   isLoading: boolean;
   onEdit: (r: ExpenseRow) => void;
   onDelete: (r: ExpenseRow) => void | Promise<void>;
   onReceiptUploaded: (id: string, receiptPath: string) => void;
+  onViewDetails?: (r: ExpenseRow) => void;
 }) {
   return (
     <Card className="shadow-soft animate-fade-in">
@@ -45,7 +48,11 @@ export function ExpensesTableCard({
           </TableHeader>
           <TableBody>
             {rows.map((r) => (
-              <TableRow key={r.id}>
+              <TableRow 
+                key={r.id}
+                className="cursor-pointer"
+                onClick={() => onViewDetails?.(r)}
+              >
                 <TableCell className="font-medium">
                   {r.description}
                   <div className="mt-1 text-xs text-muted-foreground">{r.receipt_path ? "Receipt attached" : "No receipt"}</div>
@@ -53,8 +60,11 @@ export function ExpensesTableCard({
                 <TableCell className="capitalize">{String(r.category).replace("_", " ")}</TableCell>
                 <TableCell>{r.expense_date}</TableCell>
                 <TableCell className="text-right">${Number(r.amount).toFixed(2)}</TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                   <div className="inline-flex items-center justify-end gap-2">
+                    <Button variant="ghost" size="sm" onClick={() => onViewDetails?.(r)}>
+                      <Eye className="h-4 w-4" />
+                    </Button>
                     <ReceiptUploadButton expenseId={r.id} onUploaded={(p) => onReceiptUploaded(r.id, p)} />
                     <Button variant="outline" size="sm" onClick={() => onEdit(r)}>
                       Edit
