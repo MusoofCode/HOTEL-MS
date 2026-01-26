@@ -38,31 +38,31 @@ export function AppLayout() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-svh w-full bg-background">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/70 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/50">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger className="ml-1" />
+      <div className="flex min-h-svh w-full bg-background">
+        <AppSidebar />
+        <SidebarInset className="flex-1 bg-transparent">
+          <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/70 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/50">
             <div className="flex items-center gap-2">
-              <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border bg-card shadow-soft">
-                <Building2 className="h-4 w-4" />
+              <SidebarTrigger className="ml-1" />
+              <div className="flex items-center gap-2">
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border bg-card shadow-soft">
+                  <Building2 className="h-4 w-4" />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex items-center gap-2">
-            <NotificationsButton />
-            <ThemeToggle />
-          </div>
-        </header>
-
-        <div className="flex w-full">
-          <AppSidebar />
-          <SidebarInset className="bg-transparent">
+            <div className="flex items-center gap-2">
+              <NotificationsButton />
+              <ThemeToggle />
+            </div>
+          </header>
+          
+          <div className="flex w-full">
             <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
               <Outlet />
             </div>
-          </SidebarInset>
-        </div>
+          </div>
+        </SidebarInset>
       </div>
     </SidebarProvider>
   );
