@@ -89,6 +89,7 @@ export default function Login() {
                 <form
                   className="grid gap-4"
                   onSubmit={form.handleSubmit(async (values) => {
+                    form.clearErrors("root");
                     setIsLoading(true);
                     const { error } = await supabase.auth.signInWithPassword({
                       email: values.email,
@@ -96,7 +97,11 @@ export default function Login() {
                     });
                     if (error) {
                       setIsLoading(false);
-                      toast("Login failed", { description: error.message });
+                      const msg = /invalid login credentials/i.test(error.message)
+                        ? "Invalid email or password."
+                        : error.message;
+                      form.setError("root", { type: "server", message: msg });
+                      toast("Login failed", { description: msg });
                       return;
                     }
 
@@ -195,6 +200,12 @@ export default function Login() {
                       "Login"
                     )}
                   </Button>
+
+                  {form.formState.errors.root?.message && (
+                    <div className="rounded-2xl border bg-card/70 px-4 py-3 text-sm text-destructive shadow-soft animate-in fade-in duration-200">
+                      {String(form.formState.errors.root.message)}
+                    </div>
+                  )}
                 </form>
               </Form>
             </div>

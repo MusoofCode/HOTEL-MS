@@ -8,6 +8,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "@/components/app/AppSidebar";
 import { ThemeToggle } from "@/components/app/ThemeToggle";
 import { NotificationsButton } from "@/components/app/NotificationsButton";
+import { DateTimeDisplay } from "@/components/app/DateTimeDisplay";
 
 export function AppLayout() {
   const navigate = useNavigate();
@@ -52,6 +53,7 @@ export function AppLayout() {
             </div>
 
             <div className="flex items-center gap-2">
+              <DateTimeDisplay />
               <NotificationsButton />
               <ThemeToggle />
             </div>
