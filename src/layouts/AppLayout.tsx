@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { Building2 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
@@ -45,11 +44,6 @@ export function AppLayout() {
           <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/70 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/50">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="ml-1" />
-              <div className="flex items-center gap-2">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border bg-card shadow-soft">
-                  <Building2 className="h-4 w-4" />
-                </div>
-              </div>
             </div>
 
             <div className="flex items-center gap-2">

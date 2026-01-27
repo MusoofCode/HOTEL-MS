@@ -71,12 +71,28 @@ export function AppSidebar() {
       <SidebarContent className="flex h-full flex-col py-4">
         {/* Brand Logo */}
         <div className="mb-8 flex items-center justify-center px-4">
-          <div className={cn(
-            "inline-flex items-center justify-center rounded-2xl bg-[hsl(var(--brand-warm))] shadow-soft transition-all duration-300",
-            collapsed ? "h-10 w-10" : "h-12 w-12"
-          )}>
-            <Building2 className={cn("text-white transition-all duration-300", collapsed ? "h-5 w-5" : "h-6 w-6")} />
-          </div>
+            <div
+              className={cn(
+                "group relative inline-flex items-center justify-center rounded-2xl border bg-accent shadow-soft transition-all duration-300",
+                collapsed ? "h-11 w-11" : "h-12 w-12"
+              )}
+            >
+              {/* subtle inner shine */}
+              <div
+                aria-hidden
+                className={cn(
+                  "pointer-events-none absolute inset-0 rounded-2xl bg-card/15 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                )}
+              />
+
+              <Building2
+                className={cn(
+                  "relative text-accent-foreground transition-all duration-300",
+                  collapsed ? "h-5 w-5" : "h-6 w-6",
+                  "group-hover:scale-105"
+                )}
+              />
+            </div>
         </div>
 
         <SidebarGroup className="px-3">
