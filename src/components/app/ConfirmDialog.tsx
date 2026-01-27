@@ -28,9 +28,10 @@ export function ConfirmDialog({
   children: React.ReactNode;
 }) {
   const [busy, setBusy] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
 
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={(v) => (busy ? null : setOpen(v))}>
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent className="animate-enter">
         <AlertDialogHeader>
@@ -46,6 +47,7 @@ export function ConfirmDialog({
               try {
                 setBusy(true);
                 await onConfirm();
+                setOpen(false);
               } finally {
                 setBusy(false);
               }
