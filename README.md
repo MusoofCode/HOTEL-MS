@@ -20,3 +20,6 @@ npm run dev
 Yes, you can!
 
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+
+USER: email@email.com
+PASS: 123456789999
