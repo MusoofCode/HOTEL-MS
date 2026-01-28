@@ -41,6 +41,16 @@ export default function Rooms() {
     },
   });
 
+  const roomTypeUsage = React.useMemo(() => {
+    const map = new Map<string, number>();
+    for (const r of rooms.data ?? []) {
+      const typeId = (r as any).room_type_id as string | undefined;
+      if (!typeId) continue;
+      map.set(typeId, (map.get(typeId) ?? 0) + 1);
+    }
+    return map;
+  }, [rooms.data]);
+
   const createType = useMutation({
     mutationFn: async (values: RoomTypeValues) => {
       // Build a strict payload so the generated Insert type requirements are satisfied.
@@ -81,6 +91,15 @@ export default function Rooms() {
 
   const deleteType = useMutation({
     mutationFn: async (id: string) => {
+      const { count, error: countError } = await supabase
+        .from("rooms")
+        .select("id", { count: "exact", head: true })
+        .eq("room_type_id", id);
+      if (countError) throw countError;
+      if ((count ?? 0) > 0) {
+        throw new Error("This room type is still used by one or more rooms.");
+      }
+
       const { error } = await supabase.from("room_types").delete().eq("id", id);
       if (error) throw error;
     },
@@ -130,6 +149,15 @@ export default function Rooms() {
 
   const deleteRoom = useMutation({
     mutationFn: async (id: string) => {
+      const { count, error: countError } = await supabase
+        .from("reservations")
+        .select("id", { count: "exact", head: true })
+        .eq("room_id", id);
+      if (countError) throw countError;
+      if ((count ?? 0) > 0) {
+        throw new Error("This room has reservations and cannot be deleted.");
+      }
+
       const { error } = await supabase.from("rooms").delete().eq("id", id);
       if (error) throw error;
     },
@@ -180,6 +208,7 @@ export default function Rooms() {
           isLoading={types.isLoading}
           onEdit={(t) => setEditingType(t)}
           onDelete={(t) => deleteType.mutateAsync(t.id)}
+          usageByTypeId={roomTypeUsage}
         />
         <RoomsCard
           rooms={(rooms.data ?? []) as any}

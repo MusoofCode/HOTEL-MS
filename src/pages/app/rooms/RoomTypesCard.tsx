@@ -8,11 +8,13 @@ export function RoomTypesCard({
   isLoading,
   onEdit,
   onDelete,
+  usageByTypeId,
 }: {
   types: Array<{ id: string; name: string; base_rate: number; max_occupancy: number }>;
   isLoading: boolean;
   onEdit?: (t: { id: string; name: string; base_rate: number; max_occupancy: number }) => void;
   onDelete?: (t: { id: string; name: string; base_rate: number; max_occupancy: number }) => void | Promise<void>;
+  usageByTypeId?: Map<string, number>;
 }) {
   return (
     <Card className="shadow-soft animate-fade-in">
@@ -34,6 +36,11 @@ export function RoomTypesCard({
               <TableRow key={t.id}>
                 <TableCell>
                   <div className="font-medium">{t.name}</div>
+                  {usageByTypeId?.get(t.id) ? (
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      In use by {usageByTypeId.get(t.id)} room(s)
+                    </div>
+                  ) : null}
                   <div className="mt-1 break-all text-xs text-muted-foreground">{t.id}</div>
                 </TableCell>
                 <TableCell>${Number(t.base_rate).toFixed(2)}</TableCell>
@@ -43,16 +50,22 @@ export function RoomTypesCard({
                     <Button variant="outline" size="sm" onClick={() => onEdit?.(t)}>
                       Edit
                     </Button>
-                    <ConfirmDialog
-                      title="Delete room type?"
-                      description="This removes the room type. You may need to delete rooms using it first."
-                      confirmLabel="Delete"
-                      onConfirm={() => onDelete?.(t)}
-                    >
-                      <Button variant="destructive" size="sm">
+                    {usageByTypeId?.get(t.id) ? (
+                      <Button variant="destructive" size="sm" disabled>
                         Delete
                       </Button>
-                    </ConfirmDialog>
+                    ) : (
+                      <ConfirmDialog
+                        title="Delete room type?"
+                        description="This removes the room type. You may need to delete rooms using it first."
+                        confirmLabel="Delete"
+                        onConfirm={() => onDelete?.(t)}
+                      >
+                        <Button variant="destructive" size="sm">
+                          Delete
+                        </Button>
+                      </ConfirmDialog>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>
