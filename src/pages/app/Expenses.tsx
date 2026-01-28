@@ -125,7 +125,7 @@ export default function Expenses() {
         rows={expenses.data ?? []}
         isLoading={expenses.isLoading}
         onEdit={(r) => setEditing(r)}
-        onDelete={(r) => deleteExpense.mutate(r.id)}
+        onDelete={(r) => deleteExpense.mutateAsync(r.id)}
         onReceiptUploaded={(id, path) => attachReceipt.mutate({ id, path })}
         onViewDetails={(r) => setViewing(r)}
       />

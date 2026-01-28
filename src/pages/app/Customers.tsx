@@ -126,7 +126,7 @@ export default function Customers() {
         customers={customers.data ?? []}
         isLoading={customers.isLoading}
         onEdit={(c) => setEditing(c)}
-        onDelete={(c) => deleteCustomer.mutate(c.id)}
+        onDelete={(c) => deleteCustomer.mutateAsync(c.id)}
         onViewDetails={(c) => setViewing(c)}
       />
 

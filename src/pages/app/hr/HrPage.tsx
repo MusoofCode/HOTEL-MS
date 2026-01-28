@@ -134,7 +134,7 @@ export default function HrPage() {
         rows={rows.data ?? []} 
         isLoading={rows.isLoading} 
         onEdit={setEditing} 
-        onDelete={(r) => deleteRow.mutate(r.id)}
+        onDelete={(r) => deleteRow.mutateAsync(r.id)}
       />
 
       <HrDialog mode="create" open={open} onOpenChange={setOpen} onSubmit={(v) => createRow.mutate(v)} isSaving={createRow.isPending} />

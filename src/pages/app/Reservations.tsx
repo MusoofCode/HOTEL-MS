@@ -164,7 +164,7 @@ export default function Reservations() {
         rows={reservations.data ?? []}
         isLoading={reservations.isLoading}
         onEdit={(r) => setEditing(r)}
-        onCancel={(r) => cancelReservation.mutate(r.id)}
+        onCancel={(r) => cancelReservation.mutateAsync(r.id)}
       />
 
       <ReservationDialog

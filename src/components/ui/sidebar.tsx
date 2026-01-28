@@ -219,6 +219,7 @@ Sidebar.displayName = "Sidebar";
 const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.ComponentProps<typeof Button>>(
   ({ className, onClick, ...props }, ref) => {
     const { toggleSidebar } = useSidebar();
+    const [bump, setBump] = React.useState(false);
 
     return (
       <Button
@@ -226,14 +227,20 @@ const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.C
         data-sidebar="trigger"
         variant="ghost"
         size="icon"
-        className={cn("h-7 w-7", className)}
+        className={cn(
+          "h-7 w-7 transition-transform duration-200 ease-linear active:scale-95",
+          bump ? "scale-105" : "",
+          className,
+        )}
         onClick={(event) => {
           onClick?.(event);
           toggleSidebar();
+          setBump(true);
+          window.setTimeout(() => setBump(false), 200);
         }}
         {...props}
       >
-        <PanelLeft />
+        <PanelLeft className={cn("transition-transform duration-200 ease-linear", bump ? "rotate-12" : "")} />
         <span className="sr-only">Toggle Sidebar</span>
       </Button>
     );

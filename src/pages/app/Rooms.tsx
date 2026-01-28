@@ -179,13 +179,13 @@ export default function Rooms() {
           types={(types.data ?? []) as any}
           isLoading={types.isLoading}
           onEdit={(t) => setEditingType(t)}
-          onDelete={(t) => deleteType.mutate(t.id)}
+          onDelete={(t) => deleteType.mutateAsync(t.id)}
         />
         <RoomsCard
           rooms={(rooms.data ?? []) as any}
           isLoading={rooms.isLoading}
           onEdit={(r) => setEditingRoom(r)}
-          onDelete={(r) => deleteRoom.mutate(r.id)}
+          onDelete={(r) => deleteRoom.mutateAsync(r.id)}
         />
       </div>
 
