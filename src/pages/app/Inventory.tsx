@@ -162,7 +162,7 @@ export default function Inventory() {
             items={items.data ?? []}
             isLoading={items.isLoading}
             onEdit={(i) => setEditing(i)}
-            onDelete={(i) => deleteItem.mutate(i.id)}
+            onDelete={(i) => deleteItem.mutateAsync(i.id)}
           />
         </div>
 

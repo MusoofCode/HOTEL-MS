@@ -8,6 +8,7 @@ import { AppSidebar } from "@/components/app/AppSidebar";
 import { ThemeToggle } from "@/components/app/ThemeToggle";
 import { NotificationsButton } from "@/components/app/NotificationsButton";
 import { DateTimeDisplay } from "@/components/app/DateTimeDisplay";
+import { UserMenu } from "@/components/app/UserMenu";
 
 export function AppLayout() {
   const navigate = useNavigate();
@@ -50,6 +51,7 @@ export function AppLayout() {
               <DateTimeDisplay />
               <NotificationsButton />
               <ThemeToggle />
+              <UserMenu />
             </div>
           </header>
           
